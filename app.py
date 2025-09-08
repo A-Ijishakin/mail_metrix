@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, jsonify
 import gspread
 import json
@@ -8,6 +9,9 @@ from spread_sheet_utils import SpreadSheetUtils
 
 # Setup Google Sheets client
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+# Load the credentials from environment variable
+creds_json = os.environ.get("GOOGLE_CREDS")
+creds_dict = json.loads(creds_json)
 creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
 client = gspread.authorize(creds)
 sheet = client.open("Email Mastersheet").sheet1  # Adjust as needed
