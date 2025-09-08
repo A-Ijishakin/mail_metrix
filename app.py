@@ -1,7 +1,16 @@
 from flask import Flask, request, jsonify
+import gspread
 import json
 import datetime
 from unsubscribe import UnSubscriber
+from oauth2client.service_account import ServiceAccountCredentials
+from spread_sheet_utils import SpreadSheetUtils
+
+# Setup Google Sheets client
+scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
+client = gspread.authorize(creds)
+sheet = client.open("Email Mastersheet").sheet1  # Adjust as needed
 
 app = Flask(__name__)
 
@@ -48,6 +57,26 @@ def unsubscribe_post():
     unsubscriber.unsubscribe(email)
 
     return "", 204
+
+@app.route('/mailgun/opened', methods=['POST'])
+def mailgun_opened():
+    data = request.form.to_dict()
+
+    # Extract useful info
+    timestamp = data.get("timestamp")
+    recipient = data.get("recipient")
+
+    # You can extract custom variables too:
+    contact_email = data.get("v:contact_email", recipient)
+
+    # Log to sheet
+    sheet_utilizer = SpreadSheetUtils(sheet)
+    row_index = sheet_utilizer.find_row_by_email(contact_email)
+    if row_index:
+        col_index = sheet_utilizer.get_col_index("Opened")
+        sheet.update_cell(row_index, col_index, timestamp)
+
+    return "OK", 200
 
 if __name__ == '__main__':
     app.run(debug=True)

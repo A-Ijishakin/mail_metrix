@@ -14,7 +14,6 @@ class UnSubscriber:
 def unsubscribe(self, email):
     load_dotenv()  # take environment variables from .env.
 
-
     url = "https://api.hubapi.com/crm/v3/objects/contacts/search"
     data = {
         "filterGroups": [{

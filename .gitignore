@@ -33,3 +33,5 @@ bin
 include
 lib 
 *cfg
+credentials.json
+launch.json
