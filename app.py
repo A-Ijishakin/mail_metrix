@@ -108,7 +108,7 @@ def mailgun_bounced():
     data = request.form.to_dict()
 
     # Custom vars, if you used any
-    unique_id = data.get("v:unique_id", "")
+    unique_id = data.get("v:unique_id", "84930")
 
     sheet_utilizer = SpreadSheetUtils(sheet)
 
@@ -122,7 +122,7 @@ def mailgun_bounced():
     # else:
     #     return "ID not found", 404
     # return f"Email bounced to individual at {unique_id}.", 200
-    return "Bouncey Castle", 200
+    return unique_id, 200
 
 if __name__ == '__main__':
     app.run(debug=True)
