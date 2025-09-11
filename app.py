@@ -107,22 +107,22 @@ def mailgun_opened():
 def mailgun_bounced():
     data = request.form.to_dict()
 
-    # Custom vars, if you used any
-    unique_id = data.get("v:unique_id", "84930")
+    # # Custom vars, if you used any
+    # unique_id = data.get("v:unique_id", "84930")
 
-    sheet_utilizer = SpreadSheetUtils(sheet)
+    # sheet_utilizer = SpreadSheetUtils(sheet)
 
-    # Find the row index where ID column matches the unique_id
-    row_index = sheet_utilizer.find_row_by_col_value("ID", unique_id)
+    # # Find the row index where ID column matches the unique_id
+    # row_index = sheet_utilizer.find_row_by_col_value("ID", unique_id)
     
-    if row_index:
-        bounced_col_index = sheet_utilizer.get_col_index("Bounced")
-        sheet.update_cell(row_index, bounced_col_index, "1")
+    # if row_index:
+    #     bounced_col_index = sheet_utilizer.get_col_index("Bounced")
+    #     sheet.update_cell(row_index, bounced_col_index, "1")
 
     # else:
     #     return "ID not found", 404
     # return f"Email bounced to individual at {unique_id}.", 200
-    return unique_id, 200
+    return "bing bing", 200
 
 if __name__ == '__main__':
     app.run(debug=True)
