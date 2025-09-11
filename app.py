@@ -101,7 +101,7 @@ def mailgun_opened():
         col_index = sheet_utilizer.get_col_index("Opened")
         sheet.update_cell(row_index, col_index, timestamp)
 
-    return "They opened it lol", 200
+    return "OK", 200
 
 @app.route('/mailgun/bounced', methods=['POST'])
 def mailgun_bounced():
@@ -118,10 +118,10 @@ def mailgun_bounced():
     if row_index:
         bounced_col_index = sheet_utilizer.get_col_index("Bounced")
         sheet.update_cell(row_index, bounced_col_index, "1")
-        return f"Email bounced to individual at {unique_id}.", 200
-    else:
-        return "ID not found", 404
 
+    # else:
+    #     return "ID not found", 404
+    return f"Email bounced to individual at {unique_id}.", 200
 
 if __name__ == '__main__':
     app.run(debug=True)
