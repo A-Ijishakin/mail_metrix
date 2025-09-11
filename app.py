@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import re 
 from flask import Flask, request, jsonify
 import gspread
@@ -43,7 +44,6 @@ def receive_reply():
     else:
         return "ID not found", 404
      
-
 @app.route("/unsubscribe", methods=["GET"])
 def unsubscribe():
     email = request.args.get("email")
@@ -61,7 +61,7 @@ def unsubscribe():
     sheet_utilizer = SpreadSheetUtils(sheet)
 
     # Find the row index where ID column matches the unique_id
-    row_index = sheet_utilizer.find_row_by_col_value("ID", unique_id)
+    row_index = sheet_utilizer.find_row_by_col_value("ID", unique_id) 
     
     if row_index:
         unsub_col_index = sheet_utilizer.get_col_index("Unsubscribed")
@@ -96,7 +96,7 @@ def mailgun_opened():
 
     # Log to sheet
     sheet_utilizer = SpreadSheetUtils(sheet)
-    row_index = sheet_utilizer.find_row_by_email(contact_email)
+    row_index = sheet_utilizer.find_row_by_col_value('Email',contact_email)
     if row_index:
         col_index = sheet_utilizer.get_col_index("Opened")
         sheet.update_cell(row_index, col_index, timestamp)
@@ -107,22 +107,22 @@ def mailgun_opened():
 def mailgun_bounced():
     data = request.form.to_dict()
 
-    # # Custom vars, if you used any
-    # unique_id = data.get("v:unique_id", "84930")
+    # Custom vars, if you used any
+    unique_id = data.get("v:unique_id", "84930")
 
-    # sheet_utilizer = SpreadSheetUtils(sheet)
+    sheet_utilizer = SpreadSheetUtils(sheet)
 
-    # # Find the row index where ID column matches the unique_id
-    # row_index = sheet_utilizer.find_row_by_col_value("ID", unique_id)
+    # Find the row index where ID column matches the unique_id
+    row_index = sheet_utilizer.find_row_by_col_value("ID", unique_id)
     
-    # if row_index:
-    #     bounced_col_index = sheet_utilizer.get_col_index("Bounced")
-    #     sheet.update_cell(row_index, bounced_col_index, "1")
+    if row_index:
+        bounced_col_index = sheet_utilizer.get_col_index("Bounced")
+        sheet.update_cell(row_index, bounced_col_index, "1")
+        return f"Email bounced to individual at {unique_id}.", 200
 
-    # else:
-    #     return "ID not found", 404
-    # return f"Email bounced to individual at {unique_id}.", 200
-    return "bing bing", 200
+    else:
+        return "ID not found", 404
 
 if __name__ == '__main__':
     app.run(debug=True)
+
