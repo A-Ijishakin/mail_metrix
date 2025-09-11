@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Flask (Local Debug)",
+      "type": "python",
+      "request": "launch",
+      "module": "flask",
+      "env": {
+        "FLASK_APP": "app.py",
+        "FLASK_ENV": "development"
+      },
+      "args": [
+        "run",
+        "--no-debugger", // disables Flask’s own debugger so VS Code can handle breakpoints
+        "--no-reload"    // avoids Flask reloading, which can interfere with debugging
+      ],
+      "jinja": true
+    }
+  ]
+}

@@ -34,4 +34,4 @@ include
 lib 
 *cfg
 credentials.json
-launch.json
+launch.jsonr

@@ -101,7 +101,7 @@ def mailgun_opened():
         col_index = sheet_utilizer.get_col_index("Opened")
         sheet.update_cell(row_index, col_index, timestamp)
 
-    return "OK", 200
+    return "They opened it lol", 200
 
 @app.route('/mailgun/bounced', methods=['POST'])
 def mailgun_bounced():
