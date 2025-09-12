@@ -7,6 +7,7 @@ import datetime
 from unsubscribe import UnSubscriber
 from oauth2client.service_account import ServiceAccountCredentials
 from spread_sheet_utils import SpreadSheetUtils
+from flask import render_template
 
 # Setup Google Sheets client
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
@@ -25,7 +26,7 @@ def receive_reply():
     # Get the 'To' address (e.g., reply+abc123@mecha-health.org)
     to_address = data.get("To", "")  # Mailgun sends 'To' with capital T
 
-    # Parse unique_id from address
+    # Parse unique_id from addressa
     match = re.search(r'reply\+(.+?)@mecha-health\.org', to_address)
     if not match:
         return "Could not extract unique ID", 400
@@ -66,7 +67,7 @@ def unsubscribe():
     if row_index:
         unsub_col_index = sheet_utilizer.get_col_index("Unsubscribed")
         sheet.update_cell(row_index, unsub_col_index, "1")
-        return f"{email} has been unsubscribed from future emails.", 200
+        return render_template("unsubscribed.html")
     else:
         return "ID not found", 404
 
