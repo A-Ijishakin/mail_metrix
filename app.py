@@ -107,6 +107,8 @@ def mailgun_opened():
     user_vars = event_data.get("user-variables", {})
     unique_id = user_vars.get("unique_id")
 
+    print("Parsed unique_id:", unique_id)
+
     if not unique_id:
         return "Missing unique_id", 400
 
