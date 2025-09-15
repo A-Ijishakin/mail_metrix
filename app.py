@@ -107,6 +107,9 @@ def mailgun_opened():
     user_vars = event_data.get("user-variables", {})
     unique_id = user_vars.get("unique_id")
 
+    print('MAILGUN OPENED ENDPOINT HIT', data)
+    print('Event data:', event_data)
+    print("User variables:", user_vars)
     print("Parsed unique_id:", unique_id)
 
     if not unique_id:
