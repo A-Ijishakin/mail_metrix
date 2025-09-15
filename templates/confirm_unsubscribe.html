@@ -1,0 +1,15 @@
+<!-- confirm_unsubscribe.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Confirm Unsubscribe</title>
+</head>
+<body>
+    <h2>Do you really want to unsubscribe?</h2>
+    <form action="/unsubscribe/confirm" method="POST">
+        <input type="hidden" name="email" value="{{ email }}">
+        <input type="hidden" name="unique_id" value="{{ unique_id }}">
+        <button type="submit">Yes, unsubscribe me</button>
+    </form>
+</body>
+</html>

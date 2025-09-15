@@ -45,33 +45,41 @@ def receive_reply():
         return "OK", 200
     else:
         return "ID not found", 404
-
      
 @app.route("/unsubscribe", methods=["GET"])
 def unsubscribe():
     email = request.args.get("email")
+    unique_id = request.args.get("unique_id")
 
-    if not email:
-        return "Missing email", 400
-    
-    # Create an instance of UnSubscriber
+    if not email or not unique_id:
+        return "Missing email or unique_id", 400
+
+    # Just show a confirmation page — do NOT unsubscribe here
+    return render_template("confirm_unsubscribe.html", email=email, unique_id=unique_id)
+
+
+@app.route("/unsubscribe/confirm", methods=["POST"])
+def confirm_unsubscribe():
+    email = request.form.get("email")
+    unique_id = request.form.get("unique_id")
+
+    if not email or not unique_id:
+        return "Missing email or unique_id", 400
+
+    # Call your unsubscribe logic
     unsubscriber = UnSubscriber()
-    # Remove the email from your Hubspot. 
     unsubscriber.unsubscribe(email)
 
-    #update the google sheet to reflect the unsubscribed status.
-    unique_id = request.args.get("unique_id")
     sheet_utilizer = SpreadSheetUtils(sheet)
-
-    # Find the row index where ID column matches the unique_id
     row_index = sheet_utilizer.find_row_by_col_value("ID", unique_id) 
-    
+
     if row_index:
         unsub_col_index = sheet_utilizer.get_col_index("Unsubscribed")
         sheet.update_cell(row_index, unsub_col_index, "1")
         return render_template("unsubscribed.html")
     else:
         return "ID not found", 404
+
 
 @app.route("/unsubscribe", methods=["POST"])
 def unsubscribe_post():
@@ -88,22 +96,31 @@ def unsubscribe_post():
 
 @app.route('/mailgun/opened', methods=['POST'])
 def mailgun_opened():
-    data = request.form.to_dict()
+    # Try JSON
+    if request.is_json:
+        data = request.get_json()
+    else:
+        data = request.form.to_dict()
 
-    print("MAILGUN OPEN PAYLOAD:", data) 
+    print("MAILGUN OPEN PAYLOAD:", data)
 
     # Extract useful info
     date_opened = datetime.datetime.now().strftime("%d-%m-%Y")
-    unique_id = data.get("v:unique_id")  # <-- use unique_id instead of contact_email
+    unique_id = data.get("v:unique_id")
+    print("Parsed unique_id:", unique_id)
 
-    # Log to sheet
+    if not unique_id:
+        return "Missing unique_id", 400
+
     sheet_utilizer = SpreadSheetUtils(sheet)
-    row_index = sheet_utilizer.find_row_by_col_value('ID', unique_id)  # <-- match against "Unique ID" column
+    row_index = sheet_utilizer.find_row_by_col_value('Unique ID', unique_id)
+
     if row_index:
         col_index = sheet_utilizer.get_col_index("Opened")
         sheet.update_cell(row_index, col_index, date_opened)
 
     return "OK", 200
+
 
 @app.route('/mailgun/bounced', methods=['POST'])
 def mailgun_bounced():
