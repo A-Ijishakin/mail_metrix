@@ -107,18 +107,13 @@ def mailgun_opened():
     user_vars = event_data.get("user-variables", {})
     unique_id = user_vars.get("unique_id")
 
-    print('MAILGUN OPENED ENDPOINT HIT', data)
-    print('Event data:', event_data)
-    print("User variables:", user_vars)
-    print("Parsed unique_id:", unique_id)
-
     if not unique_id:
         return "Missing unique_id", 400
 
     # Update Google Sheet
     date_opened = datetime.datetime.now().strftime("%d-%m-%Y")
     sheet_utilizer = SpreadSheetUtils(sheet)
-    row_index = sheet_utilizer.find_row_by_col_value('Unique ID', unique_id)
+    row_index = sheet_utilizer.find_row_by_col_value('ID', unique_id)
 
     if row_index:
         col_index = sheet_utilizer.get_col_index("Opened")
