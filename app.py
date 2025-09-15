@@ -91,15 +91,15 @@ def mailgun_opened():
     data = request.form.to_dict()
 
     # Extract useful info
-    timestamp = data.get("timestamp")
+    date_opened = datetime.datetime.now().strftime("%d-%m-%Y")
     unique_id = data.get("v:unique_id")  # <-- use unique_id instead of contact_email
 
     # Log to sheet
     sheet_utilizer = SpreadSheetUtils(sheet)
-    row_index = sheet_utilizer.find_row_by_col_value('Unique ID', unique_id)  # <-- match against "Unique ID" column
+    row_index = sheet_utilizer.find_row_by_col_value('ID', unique_id)  # <-- match against "Unique ID" column
     if row_index:
         col_index = sheet_utilizer.get_col_index("Opened")
-        sheet.update_cell(row_index, col_index, timestamp)
+        sheet.update_cell(row_index, col_index, date_opened)
 
     return "OK", 200
 
