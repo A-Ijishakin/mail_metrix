@@ -96,22 +96,22 @@ def unsubscribe_post():
 
 @app.route('/mailgun/opened', methods=['POST'])
 def mailgun_opened():
-    # Try JSON
+    # Extract JSON payload from Mailgun
     if request.is_json:
         data = request.get_json()
     else:
         data = request.form.to_dict()
 
-    print("MAILGUN OPEN PAYLOAD:", data)
-
-    # Extract useful info
-    date_opened = datetime.datetime.now().strftime("%d-%m-%Y")
-    unique_id = data.get("v:unique_id")
-    print("Parsed unique_id:", unique_id)
+    # Navigate to user-variables within event-data
+    event_data = data.get("event-data", {})
+    user_vars = event_data.get("user-variables", {})
+    unique_id = user_vars.get("unique_id")
 
     if not unique_id:
         return "Missing unique_id", 400
 
+    # Update Google Sheet
+    date_opened = datetime.datetime.now().strftime("%d-%m-%Y")
     sheet_utilizer = SpreadSheetUtils(sheet)
     row_index = sheet_utilizer.find_row_by_col_value('Unique ID', unique_id)
 
@@ -120,6 +120,7 @@ def mailgun_opened():
         sheet.update_cell(row_index, col_index, date_opened)
 
     return "OK", 200
+
 
 
 @app.route('/mailgun/bounced', methods=['POST'])
