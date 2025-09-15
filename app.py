@@ -19,26 +19,20 @@ sheet = client.open("Email Mastersheet").sheet1  # Adjust as needed
 app = Flask(__name__)
 
 # This stores replies into a local JSON file
+# This stores replies into a local JSON file
 @app.route('/mailgun/inbound', methods=['POST'])
 def receive_reply():
     data = request.form.to_dict()
 
-    # Step 1: Extract raw JSON string
-    recipient_vars_raw = data.get("recipient-variables", "{}")
+    # Get the 'To' address (e.g., reply+abc123@mecha-health.org)
+    to_address = data.get("To", "")  # Mailgun sends 'To' with capital T
 
-    # Step 2: Convert JSON string to dict
-    try:
-        recipient_vars = json.loads(recipient_vars_raw)
-    except json.JSONDecodeError:
-        return "Malformed recipient-variables", 400
+    # Parse unique_id from addressa
+    match = re.search(r'reply\+(.+?)@mecha-health\.org', to_address)
+    if not match:
+        return "Could not extract unique ID", 400
 
-    # Step 3: Get the recipient email
-    to_address = data.get("To", "")
-    unique_id = recipient_vars.get(to_address, {}).get("unique_id")
-
-    if not unique_id:
-        return "Unique ID not found in metadata", 400
-
+    unique_id = match.group(1)
     date_received = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     # Update Google Sheet
