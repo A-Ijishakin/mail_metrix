@@ -23,15 +23,11 @@ app = Flask(__name__)
 def receive_reply():
     data = request.form.to_dict()
 
-    # Get the 'To' address (e.g., reply+abc123@mecha-health.org)
-    to_address = data.get("To", "")  # Mailgun sends 'To' with capital T
+    unique_id = data.get("recipient-variables", {}).get("unique_id")
+    if not unique_id:
+        # fallback: maybe parse the original message ID or use subject matching
+        return "Unique ID not found in metadata", 400
 
-    # Parse unique_id from addressa
-    match = re.search(r'reply\+(.+?)@mecha-health\.org', to_address)
-    if not match:
-        return "Could not extract unique ID", 400
-
-    unique_id = match.group(1)
     date_received = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     # Update Google Sheet
