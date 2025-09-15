@@ -23,9 +23,20 @@ app = Flask(__name__)
 def receive_reply():
     data = request.form.to_dict()
 
-    unique_id = data.get("recipient-variables", {}).get("unique_id")
+    # Step 1: Extract raw JSON string
+    recipient_vars_raw = data.get("recipient-variables", "{}")
+
+    # Step 2: Convert JSON string to dict
+    try:
+        recipient_vars = json.loads(recipient_vars_raw)
+    except json.JSONDecodeError:
+        return "Malformed recipient-variables", 400
+
+    # Step 3: Get the recipient email
+    to_address = data.get("To", "")
+    unique_id = recipient_vars.get(to_address, {}).get("unique_id")
+
     if not unique_id:
-        # fallback: maybe parse the original message ID or use subject matching
         return "Unique ID not found in metadata", 400
 
     date_received = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -40,6 +51,7 @@ def receive_reply():
         return "OK", 200
     else:
         return "ID not found", 404
+
      
 @app.route("/unsubscribe", methods=["GET"])
 def unsubscribe():
@@ -122,4 +134,3 @@ def mailgun_bounced():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
