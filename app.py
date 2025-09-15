@@ -33,7 +33,7 @@ def receive_reply():
         return "Could not extract unique ID", 400
 
     unique_id = match.group(1)
-    date_received = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    date_received = datetime.datetime.now().strftime("%d-%m-%Y")
 
     # Update Google Sheet
     sheet_utilizer = SpreadSheetUtils(sheet)
@@ -92,14 +92,11 @@ def mailgun_opened():
 
     # Extract useful info
     timestamp = data.get("timestamp")
-    recipient = data.get("recipient")
-
-    # You can extract custom variables too:
-    contact_email = data.get("v:contact_email", recipient)
+    unique_id = data.get("v:unique_id")  # <-- use unique_id instead of contact_email
 
     # Log to sheet
     sheet_utilizer = SpreadSheetUtils(sheet)
-    row_index = sheet_utilizer.find_row_by_col_value('Email',contact_email)
+    row_index = sheet_utilizer.find_row_by_col_value('Unique ID', unique_id)  # <-- match against "Unique ID" column
     if row_index:
         col_index = sheet_utilizer.get_col_index("Opened")
         sheet.update_cell(row_index, col_index, timestamp)
