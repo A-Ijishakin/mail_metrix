@@ -90,6 +90,8 @@ def unsubscribe_post():
 def mailgun_opened():
     data = request.form.to_dict()
 
+    print("MAILGUN OPEN PAYLOAD:", data) 
+
     # Extract useful info
     date_opened = datetime.datetime.now().strftime("%d-%m-%Y")
     unique_id = data.get("v:unique_id")  # <-- use unique_id instead of contact_email
