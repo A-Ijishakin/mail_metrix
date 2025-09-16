@@ -119,29 +119,38 @@ def mailgun_opened():
         col_index = sheet_utilizer.get_col_index("Opened")
         sheet.update_cell(row_index, col_index, date_opened)
 
-    return "OK", 200
+    return "OK", 200 
+
+
+
 
 
 
 @app.route('/mailgun/bounced', methods=['POST'])
 def mailgun_bounced():
-    data = request.form.to_dict()
-
-    # Custom vars, if you used any
-    unique_id = data.get("v:unique_id", "84930")
-
-    sheet_utilizer = SpreadSheetUtils(sheet)
-
-    # Find the row index where ID column matches the unique_id
-    row_index = sheet_utilizer.find_row_by_col_value("ID", unique_id)
-    
-    if row_index:
-        bounced_col_index = sheet_utilizer.get_col_index("Bounced")
-        sheet.update_cell(row_index, bounced_col_index, "1")
-        return f"Email bounced to individual at {unique_id}.", 200
-
+    # Extract JSON payload from Mailgun
+    if request.is_json:
+        data = request.get_json()
     else:
-        return "ID not found", 404
+        data = request.form.to_dict()
+
+    # Navigate to user-variables within event-data
+    event_data = data.get("event-data", {})
+    user_vars = event_data.get("user-variables", {})
+    unique_id = user_vars.get("unique_id")
+
+    if not unique_id:
+        return "Missing unique_id", 400
+
+    # Update Google Sheet
+    sheet_utilizer = SpreadSheetUtils(sheet)
+    row_index = sheet_utilizer.find_row_by_col_value('ID', unique_id)
+
+    if row_index:
+        col_index = sheet_utilizer.get_col_index("Bounced")
+        sheet.update_cell(row_index, col_index, 1)
+
+    return "OK", 200 
 
 if __name__ == '__main__':
     app.run(debug=True)
